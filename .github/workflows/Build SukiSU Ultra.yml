@@ -306,6 +306,24 @@ jobs:
           
           echo "🔧 应用补丁..."
           cd ./common
+          - name: 应用补丁并修复
+           run: |
+           cd kernel_workspace/kernel_platform/common
+    
+           echo "🔧 应用补丁..."
+           patch -p1 < 50_add_susfs_in_gki-android12-5.10.patch || true
+    
+          echo "🔧 修复 task_mmu.c 中的 show_pad 标签..."
+          # 在文件末尾添加缺失的 show_pad 标签
+          cat >> fs/proc/task_mmu.c << 'EOF'
+
+          /* 修复缺失的 show_pad 标签 */
+          show_pad:
+          /* 空标签，用于解决 goto 语句引用 */
+           ;
+          EOF
+    
+          echo "✅ 补丁应用完成"
           
           if [ "${{ github.event.inputs.lz4kd }}" = "Off" ] && [ "${{ github.event.inputs.KERNEL_VERSION }}" = "6.1" ]; then
             echo "📦 应用lz4+zstd补丁..."
